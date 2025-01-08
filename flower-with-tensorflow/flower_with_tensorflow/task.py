@@ -5,14 +5,14 @@ import os
 import keras
 from keras import layers
 from flwr_datasets import FederatedDataset
-from flwr_datasets.partitioner import IidPartitioner
+from flwr_datasets.partitioner import DirichletPartitioner
 
 
 # Make TensorFlow log less verbose
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
 
 
-def load_model():
+def load_model(learning_rate: float = 0.001):
     # Define a simple CNN for CIFAR-10 and set Adam optimizer
     model = keras.Sequential(
         [
@@ -26,9 +26,14 @@ def load_model():
             layers.Dense(10, activation="softmax"),
         ]
     )
-    model.compile("adam", "sparse_categorical_crossentropy", metrics=["accuracy"])
+    model.compile(
+        optimizer = "adam",
+        loss = "sparse_categorical_crossentropy",
+        metrics=["accuracy"])
     return model
 
+def get_parameters():
+    
 
 fds = None  # Cache FederatedDataset
 
@@ -38,7 +43,12 @@ def load_data(partition_id, num_partitions):
     # Only initialize `FederatedDataset` once
     global fds
     if fds is None:
-        partitioner = IidPartitioner(num_partitions=num_partitions)
+        partitioner = DirichletPartitioner(
+            num_partitions=num_partitions,
+            partition_by= "label",
+            alpha=1.0,
+            seed=42
+        )
         fds = FederatedDataset(
             dataset="uoft-cs/cifar10",
             partitioners={"train": partitioner},
