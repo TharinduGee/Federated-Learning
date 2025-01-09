@@ -1,4 +1,5 @@
 from typing import Union, Optional, List, Tuple, Dict
+import numpy as np
 
 from flwr.common import (
     EvaluateIns,
@@ -83,7 +84,12 @@ class FedCustom(Strategy):
             (parameters_to_ndarrays(fit_res.parameters), fit_res.num_examples)
             for _, fit_res in results
         ]
-        parameters_aggregated = ndarrays_to_parameters(aggregate(weights_results))
+        aggregated_ndarrays = aggregate(weights_results)
+        parameters_aggregated = ndarrays_to_parameters(aggregated_ndarrays)
+        
+        # Save aggregated_ndarrays to disk
+        print(f"Saving round {server_round} aggregated_ndarrays...")
+        np.savez(f"round-{server_round}-weights.npz", *aggregated_ndarrays)
         metrics_aggregated = {}
         return parameters_aggregated, metrics_aggregated
 
