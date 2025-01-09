@@ -3,7 +3,7 @@
 import os
 
 import keras
-from keras import layers
+from keras import layers, optimizers
 from flwr_datasets import FederatedDataset
 from flwr_datasets.partitioner import DirichletPartitioner
 
@@ -26,8 +26,9 @@ def load_model(learning_rate: float = 0.001):
             layers.Dense(10, activation="softmax"),
         ]
     )
+    optimizer = optimizers.Adam(learning_rate)
     model.compile(
-        optimizer = "adam",
+        optimizer = optimizer,
         loss = "sparse_categorical_crossentropy",
         metrics=["accuracy"])
     return model
