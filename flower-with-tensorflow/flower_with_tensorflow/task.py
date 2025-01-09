@@ -32,8 +32,6 @@ def load_model(learning_rate: float = 0.001):
         metrics=["accuracy"])
     return model
 
-def get_parameters():
-    
 
 fds = None  # Cache FederatedDataset
 
